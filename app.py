@@ -7,293 +7,261 @@ st.set_page_config(page_title="for babybear", page_icon="🐻", layout="centered
 ASSETS = Path(__file__).parent / "assets"
 
 def img_b64(name):
-    # try a few likely locations in case the folder structure got nested wrong
-    candidates = [
-        ASSETS / name,
-        Path(__file__).parent / "App" / "assets" / name,
-        Path.cwd() / "assets" / name,
-    ]
-    for p in candidates:
-        if p.exists():
-            return base64.b64encode(p.read_bytes()).decode()
-    return ""
+    p = ASSETS / name
+    if not p.exists():
+        return ""
+    return base64.b64encode(p.read_bytes()).decode()
 
-PHOTOS = [
-    "1000233435.jpg",
-    "1000233436.jpg",
-    "1000233434.jpg",
-    "1000233439.jpg",
-    "1000233438.jpg",
-    "1000233437.jpg",
-    "1000233433.jpg",
-]
-ROTATIONS = [-4, 3, -2, 5, -3, 2, -5]
+def photo_tag(name, rot=0):
+    b64 = img_b64(name)
+    if not b64:
+        return f'<div style="color:#b5847a;font-family:\'Patrick Hand\',cursive;">missing: {name}</div>'
+    return f'''
+    <div style="transform:rotate({rot}deg);">
+      <div class="polaroid"><img src="data:image/jpeg;base64,{b64}"></div>
+    </div>
+    '''
 
 # ---------- STYLE ----------
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&family=Lora:ital@0;1&display=swap');
 
-html, body, [class*="css"] {
-    font-family: 'Lora', serif;
-}
+html, body, [class*="css"] { font-family: 'Lora', serif; }
 
 .stApp {
-    background: linear-gradient(180deg, #FFF6F0 0%, #FDEFE9 40%, #FBEAEF 100%);
+    background: linear-gradient(160deg, #FFF3EC 0%, #FFE8E0 35%, #FDE2EC 70%, #F7E4F2 100%);
     color: #5b4640;
 }
-
 #MainMenu, footer, header {visibility: hidden;}
+.block-container { max-width: 680px; padding-top: 1.5rem; padding-bottom: 4rem; }
 
-.block-container {
-    max-width: 700px;
-    padding-top: 2rem;
-    padding-bottom: 4rem;
-}
-
-.hero-title {
-    font-family: 'Caveat', cursive;
-    font-size: 4rem;
-    line-height: 1;
-    text-align: center;
-    color: #e8806a;
-    margin-bottom: 0;
-}
-
-.hero-sub {
-    font-family: 'Patrick Hand', cursive;
-    text-align: center;
-    color: #a9837c;
-    font-size: 1.15rem;
-    margin-top: 6px;
-    margin-bottom: 0;
-}
-
-.note {
-    background: #fffaf6;
-    border: 1px solid rgba(232,128,106,.12);
-    border-left: 4px solid #f3a98a;
-    border-radius: 6px 18px 18px 6px;
-    padding: 22px 26px;
-    margin: 16px 0;
-    font-size: 1.08rem;
-    line-height: 1.85;
-    color: #5b4640;
-    box-shadow: 0 6px 16px rgba(232,128,106,.08);
-}
-
-.note b { color: #e8806a; }
-
-.handwritten-label {
-    font-family: 'Caveat', cursive;
-    font-size: 1.9rem;
-    color: #e8806a;
+.title-card{
     text-align:center;
-    margin: 50px 0 4px;
+    margin-bottom: 6px;
 }
-
-.subtle-label {
-    font-family: 'Patrick Hand', cursive;
-    text-align:center;
-    color: #b89a92;
-    margin-bottom: 28px;
-}
-
-.polaroid {
-    background: #fffaf6;
-    padding: 10px 10px 36px 10px;
-    border-radius: 6px;
-    box-shadow: 0 8px 20px rgba(232,128,106,.16);
-    display:inline-block;
-    width: 100%;
-}
-.polaroid img {
-    width: 100%;
-    border-radius: 2px;
-    display:block;
-    object-fit: cover;
-    aspect-ratio: 4/5;
-}
-.polaroid-cap {
-    font-family: 'Caveat', cursive;
-    font-size: 1.2rem;
-    color: #8a6e64;
-    text-align:center;
-    margin-top: 6px;
-}
-
-.song-box {
-    background: linear-gradient(135deg, #ffe3d6, #ffd9e6);
-    border-radius: 20px;
-    padding: 28px;
-    text-align:center;
-    margin: 30px 0;
-    border: 1px solid rgba(232,128,106,.18);
-}
-.song-title {
-    font-family:'Caveat', cursive;
-    font-size: 2.1rem;
-    color:#e8806a;
-    margin: 6px 0;
-}
-
-.divider-hr {
-    border: none;
-    border-top: 1px dashed rgba(232,128,106,.22);
-    margin: 46px 0;
-}
-
-div.stButton > button {
-    font-family: 'Patrick Hand', cursive;
-    font-size: 1.15rem;
-    background: #f3a98a;
-    color: #fff;
-    border: none;
-    border-radius: 999px;
-    padding: 12px 34px;
-    box-shadow: 0 8px 18px rgba(232,128,106,.3);
-    display:block;
-    margin: 0 auto;
-}
-div.stButton > button:hover {
-    background:#e8806a;
-    color:#fff;
-}
-
-.hug-msg {
-    text-align:center;
-    font-family:'Caveat', cursive;
-    font-size: 1.7rem;
-    color:#e8806a;
-    margin-top: 18px;
-}
-
-.sig {
-    text-align:center;
-    font-family:'Caveat', cursive;
-    font-size: 1.8rem;
-    color:#e8806a;
-    margin-top: 14px;
-}
-
-.foot {
-    text-align:center;
-    color:#b89a92;
+.title-card .pet-names{
     font-family:'Patrick Hand', cursive;
-    margin-top: 50px;
-    font-size: .9rem;
+    color:#c98a78;
+    font-size:1rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+}
+.title-card h1{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:3.6rem;
+    line-height:1.05;
+    color:#e8704f;
+    margin:6px 0 4px;
+}
+.title-card p{
+    font-family:'Patrick Hand', cursive;
+    color:#a9837c;
+    font-size:1.1rem;
+}
+
+.scrap{
+    background:#fffaf6;
+    border-radius:22px;
+    padding:24px 26px;
+    box-shadow:0 10px 26px rgba(232,112,79,.10);
+    margin: 22px 0;
+    border:1px solid rgba(232,112,79,.10);
+}
+.scrap p{font-size:1.06rem; line-height:1.85; color:#5b4640; margin:0;}
+.scrap b{color:#e8704f;}
+
+.tag{
+    display:inline-block;
+    font-family:'Caveat', cursive;
+    font-size:1.5rem;
+    color:#fff;
+    background:#f0a98e;
+    padding:2px 18px;
+    border-radius:999px;
+    margin-bottom:10px;
+    transform:rotate(-2deg);
+}
+
+.polaroid{
+    background:#fffaf6;
+    padding:8px 8px 8px 8px;
+    border-radius:10px;
+    box-shadow:0 10px 22px rgba(232,112,79,.18);
+}
+.polaroid img{
+    width:100%;
+    border-radius:4px;
+    display:block;
+    object-fit:cover;
+    aspect-ratio:1/1;
+}
+
+.divider{
+    text-align:center;
+    color:#e8a796;
+    font-family:'Caveat', cursive;
+    font-size:1.4rem;
+    margin:46px 0 8px;
+}
+.divider::before, .divider::after{ content:"⋆"; margin:0 12px; opacity:.7;}
+
+.song-box{
+    background: linear-gradient(135deg, #ffd9c4, #ffd2e3);
+    border-radius:24px;
+    padding:30px;
+    text-align:center;
+    margin:36px 0;
+}
+.song-box .tag2{font-family:'Patrick Hand',cursive; color:#c45a3e; letter-spacing:.08em; text-transform:uppercase; font-size:.85rem;}
+.song-box h2{font-family:'Caveat', cursive; font-size:2.3rem; color:#c45a3e; margin:8px 0;}
+.song-box p{color:#8a6e64; font-size:1rem; line-height:1.7; max-width:420px; margin:0 auto;}
+
+.endbox{
+    text-align:center;
+    background:#fffaf6;
+    border-radius:24px;
+    padding:36px 26px;
+    margin-top:10px;
+    box-shadow:0 10px 26px rgba(232,112,79,.12);
+}
+.endbox h3{font-family:'Caveat', cursive; font-size:2.2rem; color:#e8704f; margin-bottom:14px;}
+
+div.stButton > button{
+    font-family:'Patrick Hand', cursive;
+    font-size:1.1rem;
+    background:#e8704f;
+    color:#fff;
+    border:none;
+    border-radius:999px;
+    padding:13px 36px;
+    box-shadow:0 8px 18px rgba(232,112,79,.32);
+    display:block;
+    margin:0 auto;
+}
+div.stButton > button:hover{ background:#d65f3e; color:#fff; }
+
+.reveal{
+    text-align:center;
+    font-family:'Caveat', cursive;
+    font-size:1.6rem;
+    color:#e8704f;
+    margin-top:18px;
+}
+
+.foot{
+    text-align:center;
+    color:#c2a097;
+    font-family:'Patrick Hand', cursive;
+    margin-top:50px;
+    font-size:.9rem;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # ---------- HERO ----------
-st.markdown('<div class="hero-title">hey babybear 🐻</div>', unsafe_allow_html=True)
-st.markdown('<div class="hero-sub">get off your phone for a sec, i made you something</div>', unsafe_allow_html=True)
-
-st.markdown('<div class="note">i know this week has genuinely sucked for you. so instead of texting "it\'ll be okay" for the fifth time, i made you this whole little page. yes i\'m unhinged. keep scrolling.</div>', unsafe_allow_html=True)
-
-st.markdown('<hr class="divider-hr">', unsafe_allow_html=True)
-
-# ---------- OUR STORY ----------
-st.markdown('<div class="handwritten-label">our story, the real one</div>', unsafe_allow_html=True)
 st.markdown('''
-<div class="note">
-i still remember the day pranathi came up to me and said "tujhe pata hai gaurav bhaiya mile aaj, wo aise the waise the" — and she made me think i like you, even though i never thought so before that.
-</div>
-<div class="note">
-from her random stories about you, following you and "stalking" became part of my daily routine. with some courage she made me text you, and i still remember how scared i was — yet without thinking, i did it anyway.
-</div>
-<div class="note">
-talking behind the phone was cool, until you wanted to see me. scared of how i looked, a thousand insecurities deep, i sent you the photo... thought you'd never talk to me again after that. don't know why you did, but you did.
-</div>
-<div class="note">
-the crossover i was trying to avoid actually happened. my heart was racing like those cars in f1. that text in december made me feel my first real heartbeat for someone, and i realised i'd gotten attached to you far beyond just "do i like him."
-</div>
-<div class="note">
-today, 2.5 years have passed and i still love you like crazy. your smallest validation makes all my effort feel worth it. i developed the courage to face a camera with my teeth wide open without fear — and i thank you for all the effort you put in to make me feel confident, and loved.
-</div>
-<div class="note">
-but as they say, the story can never always be happy. so was mine. plots i never expected showed up right in front of my eyes. i wanted to disappear, all my insecurities and hatred for myself took over me — i felt heartbroken, restless, emotions i'd never felt before. but at the end, i'm still here, with you, hoping that things won't happen again and that this story always gets its happy ending.
+<div class="title-card">
+  <div class="pet-names">muskmelon × babybear</div>
+  <h1>for my babybear 🐻</h1>
+  <p>okay get comfy, this one's a little long</p>
 </div>
 ''', unsafe_allow_html=True)
-st.markdown('<div class="sig">— your muskmelon, still here, still yours</div>', unsafe_allow_html=True)
 
-st.markdown('<hr class="divider-hr">', unsafe_allow_html=True)
+st.markdown(f'''
+<div class="scrap" style="text-align:center;">
+  <p>2.5 years deserves more than a "u good?" text. so here's the actual story — start to now.</p>
+</div>
+''', unsafe_allow_html=True)
+
+# ---------- STORY: alternating text/photo ----------
+def story_block(tag, text, photo, rot, photo_first=False):
+    c1, c2 = st.columns([3, 2])
+    text_col, photo_col = (c2, c1) if photo_first else (c1, c2)
+    with text_col:
+        st.markdown(f'<div class="scrap"><span class="tag">{tag}</span><p>{text}</p></div>', unsafe_allow_html=True)
+    with photo_col:
+        st.markdown(photo_tag(photo, rot), unsafe_allow_html=True)
+
+st.markdown('<div class="divider">how it started</div>', unsafe_allow_html=True)
+
+story_block(
+    "the pranathi effect",
+    'i still remember the day pranathi came up to me and said <i>"tujhe pata hai gaurav bhaiya mile aaj, wo aise the waise the"</i> — and she made me think i like you, even though i never thought so before that.',
+    "1000233437.jpg", -4
+)
+
+story_block(
+    "the stalking era",
+    "from her random stories about you, following you and \"stalking\" became part of my daily routine. with some courage she made me text you, and i still remember how scared i was — yet without thinking, i did it anyway.",
+    "1000233438.jpg", 3, photo_first=True
+)
+
+story_block(
+    "the photo i was scared to send",
+    "talking behind the phone was cool, until you wanted to see me. scared of how i looked, a thousand insecurities deep, i sent you the photo... thought you'd never talk to me again after that. don't know why you did, but you did.",
+    "1000233439.jpg", -3
+)
+
+story_block(
+    "december",
+    "the crossover i was trying to avoid actually happened. my heart was racing like those cars in f1. that text in december made me feel my first real heartbeat for someone, and i realised i'd gotten attached to you far beyond just \"do i like him.\"",
+    "1000233434.jpg", 4, photo_first=True
+)
+
+st.markdown('<div class="divider">where we are now</div>', unsafe_allow_html=True)
+
+story_block(
+    "2.5 years later",
+    "today, 2.5 years have passed and i still love you like crazy. your smallest validation makes all my effort feel worth it. i developed the courage to face a camera with my teeth wide open without fear — and i thank you for all the effort you put in to make me feel confident, and loved.",
+    "1000233435.jpg", -2
+)
+
+story_block(
+    "the harder part",
+    "but as they say, the story can never always be happy. so was mine. plots i never expected showed up right in front of my eyes. i wanted to disappear, all my insecurities and hatred for myself took over me — i felt heartbroken, restless, emotions i'd never felt before.",
+    "1000233436.jpg", 3, photo_first=True
+)
+
+st.markdown(f'''
+<div class="scrap" style="text-align:center;">
+  <p><b>but at the end, i'm still here</b>, with you, hoping that things won't happen again and that this story always gets its happy ending.</p>
+</div>
+''', unsafe_allow_html=True)
 
 # ---------- OUR SONG ----------
 st.markdown('''
 <div class="song-box">
-  <div class="handwritten-label" style="margin-top:0;">our song, btw</div>
-  <div class="song-title">moonlight — dhruv</div>
-  <div style="color:#8a6e64; font-family:'Lora',serif; font-size:1rem;">
-  you know the one. the one that comes on and we both just go quiet for a second.
-  put it on, lie down, and pretend i'm there arguing with you about which side of the bed is "mine."
-  </div>
+  <div class="tag2">our song, btw</div>
+  <h2>moonlight — dhruv</h2>
+  <p>you know the one. the one that comes on and we both just go quiet for a second.
+  put it on, lie down, and pretend i'm there arguing with you about which side of the bed is "mine."</p>
 </div>
 ''', unsafe_allow_html=True)
 
-st.markdown('<hr class="divider-hr">', unsafe_allow_html=True)
-
-# ---------- TIMELINE ----------
-st.markdown('<div class="handwritten-label">2.5 years of this circus</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtle-label">a highly biased recap</div>', unsafe_allow_html=True)
+# ---------- LAST PHOTO + CLOSING ----------
+st.markdown('<div class="divider">always</div>', unsafe_allow_html=True)
+c1, c2, c3 = st.columns([1, 2, 1])
+with c2:
+    st.markdown(photo_tag("1000233433.jpg", -1), unsafe_allow_html=True)
 
 st.markdown('''
-<div class="note"><b>somehow it worked</b><br>
-2.5 years and i still don't fully know how we ended up this attached to each other. but here we are — mirror selfies, random bicycles, gates we pose behind for no reason.</div>
+<div class="endbox">
+  <h3>okay, last thing, babybear</h3>
+  <p style="color:#8a6e64; font-size:1.02rem; line-height:1.8; max-width:440px; margin:0 auto 18px;">
+  whatever this week's been throwing at you — i'm not going anywhere. not because i have to.
+  because there's genuinely no one else i'd rather build a stupid little website for at 1am.
+  </p>
+</div>
 ''', unsafe_allow_html=True)
 
-st.markdown('<hr class="divider-hr">', unsafe_allow_html=True)
-
-# ---------- GALLERY ----------
-st.markdown('<div class="handwritten-label">exhibit a through g</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtle-label">evidence we are, in fact, cute</div>', unsafe_allow_html=True)
-
-captions = [
-    "the brown tank top fit", "bicycle, sunset, no plan", "mirror, garden, us",
-    "heart hands, mandatory", "matching necklaces day", "behind the gate",
-    "just us, just talking"
-]
-
-cols = st.columns(2)
-for i, (photo, rot, cap) in enumerate(zip(PHOTOS, ROTATIONS, captions)):
-    b64 = img_b64(photo)
-    if not b64:
-        continue
-    with cols[i % 2]:
-        st.markdown(f'''
-        <div style="transform: rotate({rot}deg); margin-bottom: 26px;">
-          <div class="polaroid">
-            <img src="data:image/jpeg;base64,{b64}">
-            <div class="polaroid-cap">{cap}</div>
-          </div>
-        </div>
-        ''', unsafe_allow_html=True)
-
-st.markdown('<hr class="divider-hr">', unsafe_allow_html=True)
-
-# ---------- REASONS ----------
-st.markdown('<div class="handwritten-label">things i won\'t shut up about</div>', unsafe_allow_html=True)
-st.markdown('''
-<div class="note"><b>your curls</b> — you act like you don't care but you absolutely check the mirror twice.</div>
-<div class="note"><b>the photographer arc</b> — phone up, head tilted, you've made a stairwell look like a magazine shoot.</div>
-<div class="note"><b>you show up anyway</b> — toxic office day, bad headspace, doesn't matter. you still text me back.</div>
-<div class="note"><b>your laugh</b> — it ruins my whole "i'm mad at you" plan every single time.</div>
-<div class="note"><b>you're not the worst thing you've done</b> — i need you to actually believe that one.</div>
-''', unsafe_allow_html=True)
-
-st.markdown('<hr class="divider-hr">', unsafe_allow_html=True)
-
-# ---------- HUG BUTTON ----------
-st.markdown('<div class="handwritten-label">okay one last thing</div>', unsafe_allow_html=True)
-
+st.write("")
 if "hugged" not in st.session_state:
     st.session_state.hugged = False
-
 if st.button("tap this, babybear"):
     st.session_state.hugged = True
-
 if st.session_state.hugged:
-    st.markdown('<div class="hug-msg">there. you\'ve been hugged. virtually, badly, but with full intent. go drink some water and go to sleep. 🐻</div>', unsafe_allow_html=True)
+    st.markdown('<div class="reveal">there. you\'ve been hugged. virtually, badly, but with full intent. 🐻🍈</div>', unsafe_allow_html=True)
 
-st.markdown('<div class="foot">made by your babybear, who is currently very proud of you</div>', unsafe_allow_html=True)
+st.markdown('<div class="foot">made by your muskmelon, who is very proud of you</div>', unsafe_allow_html=True)
