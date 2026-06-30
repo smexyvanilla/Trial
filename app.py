@@ -7,10 +7,16 @@ st.set_page_config(page_title="for babybear", page_icon="🐻", layout="centered
 ASSETS = Path(__file__).parent / "assets"
 
 def img_b64(name):
-    p = ASSETS / name
-    if not p.exists():
-        return ""
-    return base64.b64encode(p.read_bytes()).decode()
+    # try a few likely locations in case the folder structure got nested wrong
+    candidates = [
+        ASSETS / name,
+        Path(__file__).parent / "App" / "assets" / name,
+        Path.cwd() / "assets" / name,
+    ]
+    for p in candidates:
+        if p.exists():
+            return base64.b64encode(p.read_bytes()).decode()
+    return ""
 
 PHOTOS = [
     "1000233435.jpg",
@@ -33,25 +39,16 @@ html, body, [class*="css"] {
 }
 
 .stApp {
-    background: radial-gradient(circle at 15% 10%, #2b2440 0%, #1a1530 45%, #100c20 100%);
-    color: #f3ecff;
+    background: linear-gradient(180deg, #FFF6F0 0%, #FDEFE9 40%, #FBEAEF 100%);
+    color: #5b4640;
 }
 
 #MainMenu, footer, header {visibility: hidden;}
 
 .block-container {
-    max-width: 720px;
+    max-width: 700px;
     padding-top: 2rem;
     padding-bottom: 4rem;
-}
-
-.tape {
-    display:inline-block;
-    background: rgba(255, 222, 150, 0.55);
-    height: 22px;
-    width: 70px;
-    transform: rotate(-3deg);
-    box-shadow: 0 2px 4px rgba(0,0,0,.2);
 }
 
 .hero-title {
@@ -59,39 +56,38 @@ html, body, [class*="css"] {
     font-size: 4rem;
     line-height: 1;
     text-align: center;
-    color: #ffd9a0;
+    color: #e8806a;
     margin-bottom: 0;
-    text-shadow: 0 0 18px rgba(255,217,160,.35);
 }
 
 .hero-sub {
     font-family: 'Patrick Hand', cursive;
     text-align: center;
-    color: #cdbfff;
+    color: #a9837c;
     font-size: 1.15rem;
     margin-top: 6px;
     margin-bottom: 0;
 }
 
 .note {
-    background: #221c38;
-    border: 1px solid rgba(255,255,255,.08);
-    border-left: 4px solid #ffb37a;
-    border-radius: 4px 14px 14px 4px;
+    background: #fffaf6;
+    border: 1px solid rgba(232,128,106,.12);
+    border-left: 4px solid #f3a98a;
+    border-radius: 6px 18px 18px 6px;
     padding: 22px 26px;
-    margin: 18px 0;
+    margin: 16px 0;
     font-size: 1.08rem;
     line-height: 1.85;
-    color: #e9e2ff;
-    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+    color: #5b4640;
+    box-shadow: 0 6px 16px rgba(232,128,106,.08);
 }
 
-.note b { color: #ffd9a0; }
+.note b { color: #e8806a; }
 
 .handwritten-label {
     font-family: 'Caveat', cursive;
-    font-size: 1.7rem;
-    color: #ffb37a;
+    font-size: 1.9rem;
+    color: #e8806a;
     text-align:center;
     margin: 50px 0 4px;
 }
@@ -99,21 +95,21 @@ html, body, [class*="css"] {
 .subtle-label {
     font-family: 'Patrick Hand', cursive;
     text-align:center;
-    color: #998fc7;
+    color: #b89a92;
     margin-bottom: 28px;
 }
 
 .polaroid {
-    background: #fdf8ee;
+    background: #fffaf6;
     padding: 10px 10px 36px 10px;
-    border-radius: 3px;
-    box-shadow: 0 10px 24px rgba(0,0,0,.35);
+    border-radius: 6px;
+    box-shadow: 0 8px 20px rgba(232,128,106,.16);
     display:inline-block;
     width: 100%;
 }
 .polaroid img {
     width: 100%;
-    border-radius: 1px;
+    border-radius: 2px;
     display:block;
     object-fit: cover;
     aspect-ratio: 4/5;
@@ -121,68 +117,68 @@ html, body, [class*="css"] {
 .polaroid-cap {
     font-family: 'Caveat', cursive;
     font-size: 1.2rem;
-    color: #3a3144;
+    color: #8a6e64;
     text-align:center;
     margin-top: 6px;
 }
 
 .song-box {
-    background: linear-gradient(135deg, #3a2f55, #261f3d);
-    border-radius: 16px;
+    background: linear-gradient(135deg, #ffe3d6, #ffd9e6);
+    border-radius: 20px;
     padding: 28px;
     text-align:center;
     margin: 30px 0;
-    border: 1px solid rgba(255,179,122,.25);
+    border: 1px solid rgba(232,128,106,.18);
 }
 .song-title {
     font-family:'Caveat', cursive;
     font-size: 2.1rem;
-    color:#ffd9a0;
+    color:#e8806a;
     margin: 6px 0;
 }
 
 .divider-hr {
     border: none;
-    border-top: 1px dashed rgba(255,255,255,.15);
+    border-top: 1px dashed rgba(232,128,106,.22);
     margin: 46px 0;
 }
 
 div.stButton > button {
     font-family: 'Patrick Hand', cursive;
     font-size: 1.15rem;
-    background: #ffb37a;
-    color: #1a1530;
+    background: #f3a98a;
+    color: #fff;
     border: none;
     border-radius: 999px;
     padding: 12px 34px;
-    box-shadow: 0 6px 16px rgba(255,179,122,.3);
+    box-shadow: 0 8px 18px rgba(232,128,106,.3);
     display:block;
     margin: 0 auto;
 }
 div.stButton > button:hover {
-    background:#ffc796;
-    color:#1a1530;
+    background:#e8806a;
+    color:#fff;
 }
 
 .hug-msg {
     text-align:center;
     font-family:'Caveat', cursive;
-    font-size: 1.6rem;
-    color:#ffd9a0;
+    font-size: 1.7rem;
+    color:#e8806a;
     margin-top: 18px;
 }
 
 .sig {
     text-align:center;
     font-family:'Caveat', cursive;
-    font-size: 1.7rem;
-    color:#ffb37a;
+    font-size: 1.8rem;
+    color:#e8806a;
     margin-top: 14px;
 }
 
 .foot {
     text-align:center;
-    color:#6f6592;
+    color:#b89a92;
     font-family:'Patrick Hand', cursive;
     margin-top: 50px;
     font-size: .9rem;
@@ -198,20 +194,29 @@ st.markdown('<div class="note">i know this week has genuinely sucked for you. so
 
 st.markdown('<hr class="divider-hr">', unsafe_allow_html=True)
 
-# ---------- MESSAGE ----------
-st.markdown('<div class="handwritten-label">from me, obviously</div>', unsafe_allow_html=True)
+# ---------- OUR STORY ----------
+st.markdown('<div class="handwritten-label">our story, the real one</div>', unsafe_allow_html=True)
 st.markdown('''
 <div class="note">
-i know your office has been making you feel small lately, and i hate it. you go in every day and deal with people who don't see half of what you're actually capable of, and then you still come home with enough energy to send me a meme. that's not nothing. that's actually kind of insane work ethic and i don't think you give yourself credit for it.
+i still remember the day pranathi came up to me and said "tujhe pata hai gaurav bhaiya mile aaj, wo aise the waise the" — and she made me think i like you, even though i never thought so before that.
 </div>
 <div class="note">
-and i know there's a part of you still stuck on stuff you did before — replaying it, being harder on yourself than literally anyone else ever was. <b>babybear.</b> you are allowed to have grown. i'm not with you despite who you were, i'm with you because of who you've become, and i watch you actively try to be better every single day. that counts for everything.
+from her random stories about you, following you and "stalking" became part of my daily routine. with some courage she made me text you, and i still remember how scared i was — yet without thinking, i did it anyway.
 </div>
 <div class="note">
-you don't have to have it all figured out this week. you just have to get through it. i'm not going anywhere — not because i have to, but because there's genuinely no one else i'd rather text at 1am about nothing.
+talking behind the phone was cool, until you wanted to see me. scared of how i looked, a thousand insecurities deep, i sent you the photo... thought you'd never talk to me again after that. don't know why you did, but you did.
+</div>
+<div class="note">
+the crossover i was trying to avoid actually happened. my heart was racing like those cars in f1. that text in december made me feel my first real heartbeat for someone, and i realised i'd gotten attached to you far beyond just "do i like him."
+</div>
+<div class="note">
+today, 2.5 years have passed and i still love you like crazy. your smallest validation makes all my effort feel worth it. i developed the courage to face a camera with my teeth wide open without fear — and i thank you for all the effort you put in to make me feel confident, and loved.
+</div>
+<div class="note">
+but as they say, the story can never always be happy. so was mine. plots i never expected showed up right in front of my eyes. i wanted to disappear, all my insecurities and hatred for myself took over me — i felt heartbroken, restless, emotions i'd never felt before. but at the end, i'm still here, with you, hoping that things won't happen again and that this story always gets its happy ending.
 </div>
 ''', unsafe_allow_html=True)
-st.markdown('<div class="sig">— your babybear\'s babybear</div>', unsafe_allow_html=True)
+st.markdown('<div class="sig">— your muskmelon, still here, still yours</div>', unsafe_allow_html=True)
 
 st.markdown('<hr class="divider-hr">', unsafe_allow_html=True)
 
@@ -220,7 +225,7 @@ st.markdown('''
 <div class="song-box">
   <div class="handwritten-label" style="margin-top:0;">our song, btw</div>
   <div class="song-title">moonlight — dhruv</div>
-  <div style="color:#cdbfff; font-family:'Lora',serif; font-size:1rem;">
+  <div style="color:#8a6e64; font-family:'Lora',serif; font-size:1rem;">
   you know the one. the one that comes on and we both just go quiet for a second.
   put it on, lie down, and pretend i'm there arguing with you about which side of the bed is "mine."
   </div>
@@ -236,12 +241,6 @@ st.markdown('<div class="subtle-label">a highly biased recap</div>', unsafe_allo
 st.markdown('''
 <div class="note"><b>somehow it worked</b><br>
 2.5 years and i still don't fully know how we ended up this attached to each other. but here we are — mirror selfies, random bicycles, gates we pose behind for no reason.</div>
-
-<div class="note"><b>matching spider necklaces, obviously</b><br>
-we match outfits we didn't plan and necklaces we definitely did. heart hands for the camera every single time, no exceptions, it's basically law now.</div>
-
-<div class="note"><b>this week, specifically</b><br>
-between the office being a whole mess and your brain being mean to you about old stuff — i see you still showing up. that's the entire reason this page exists.</div>
 ''', unsafe_allow_html=True)
 
 st.markdown('<hr class="divider-hr">', unsafe_allow_html=True)
@@ -259,6 +258,8 @@ captions = [
 cols = st.columns(2)
 for i, (photo, rot, cap) in enumerate(zip(PHOTOS, ROTATIONS, captions)):
     b64 = img_b64(photo)
+    if not b64:
+        continue
     with cols[i % 2]:
         st.markdown(f'''
         <div style="transform: rotate({rot}deg); margin-bottom: 26px;">
